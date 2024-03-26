@@ -1,0 +1,94 @@
+import pygame
+import sys
+import os
+import random
+
+# Ekran boyutları
+SCREEN_WIDTH = 800
+SCREEN_HEIGHT = 600
+
+# Renkler
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 0, 0)
+
+# Hedef sınıfı
+class Target(pygame.sprite.Sprite):
+    def __init__(self):
+        super().__init__()
+        # 'hedef.jpg' من سطح المكتب
+        self.image = pygame.image.load(os.path.join(os.path.expanduser('~'), 'Desktop', 'hedef.jpg')).convert_alpha()
+        self.image = pygame.transform.scale(self.image, (50, 50))
+        self.rect = self.image.get_rect()
+        self.rect.center = (random.randint(50, SCREEN_WIDTH - 50), random.randint(50, SCREEN_HEIGHT - 50))
+        self.speedx = random.randint(-3, 3)
+        self.speedy = random.randint(-3, 3)
+
+    def update(self):
+        self.rect.x += self.speedx
+        self.rect.y += self.speedy
+        if self.rect.right > SCREEN_WIDTH or self.rect.left < 0:
+            self.speedx *= -1
+        if self.rect.bottom > SCREEN_HEIGHT or self.rect.top < 0:
+            self.speedy *= -1
+
+# Oyunu başlatma fonksiyonu
+def main():
+    pygame.init()
+    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    pygame.display.set_caption("Stella")
+    clock = pygame.time.Clock()
+
+    all_sprites = pygame.sprite.Group()
+    targets = pygame.sprite.Group()
+
+    score = 0
+    font = pygame.font.Font(None, 36)
+
+    # Ana oyun döngüsü
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                # Fare tıklaması ile hedefi kontrol etme
+                for target in targets:
+                    if target.rect.collidepoint(event.pos):
+                        score += 1
+                        target.kill()
+# Her başarılı vuruşta hareket hızı küçük bir yüzde artar
+                        for t in targets:
+                            t.speedx *= 1.4
+                            t.speedy *= 1.4
+
+        # Yeni hedef oluşturma
+        if len(targets) < 5:
+            target = Target()
+            targets.add(target)
+            all_sprites.add(target)
+
+        # Tüm sprite'ları güncelleme
+        all_sprites.update()
+
+        # Ekranı temizleme
+        screen.fill(BLACK)
+
+        # Tüm sprite'ları ekrana çizme
+        all_sprites.draw(screen)
+
+        # Puanı ekrana yazdırma
+        text = font.render(f"Score: {score}", True, WHITE)
+        screen.blit(text, (10, 10))
+
+        # Ekranı güncelleme
+        pygame.display.flip()
+
+        # FPS ayarlama
+        clock.tick(30)
+
+    pygame.quit()
+    sys.exit()
+
+if __name__ == "__main__":
+    main()
