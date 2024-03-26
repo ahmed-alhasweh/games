@@ -16,7 +16,7 @@ RED = (255, 0, 0)
 class Target(pygame.sprite.Sprite):
     def __init__(self):
         super().__init__()
-        # 'hedef.jpg' من سطح المكتب
+        # 'hedef.jpg' From desktop
         self.image = pygame.image.load(os.path.join(os.path.expanduser('~'), 'Desktop', 'hedef.jpg')).convert_alpha()
         self.image = pygame.transform.scale(self.image, (50, 50))
         self.rect = self.image.get_rect()
